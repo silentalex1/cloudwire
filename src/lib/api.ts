@@ -3,10 +3,6 @@ const getApiBase = () => {
   if (meta && meta.env && meta.env.VITE_API_URL) {
     return meta.env.VITE_API_URL
   }
-  // In production, use the Render backend URL
-  if (meta && meta.env && meta.env.PROD) {
-    return 'https://cloudwire-api.onrender.com/api'
-  }
   return '/api'
 }
 
