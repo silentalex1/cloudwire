@@ -264,18 +264,6 @@ app.use(async (req, res, next) => {
 
 app.use(express.static(path.join(__dirname, '../public')));
 
-app.use(express.static(path.join(__dirname, '../../dist')));
-
-app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api/')) return next();
-  const indexPath = path.join(__dirname, '../../dist/index.html');
-  const fs = require('fs');
-  if (fs.existsSync(indexPath)) {
-    return res.sendFile(indexPath);
-  }
-  next();
-});
-
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok', 
@@ -796,6 +784,17 @@ app.post('/api/security/captcha/verify', (req, res) => {
 app.get('/api/dns/resolve/:domain', (req, res) => {
   const dns = DNSServer.getInstance();
   res.json(dns.resolve(req.params.domain));
+});
+
+app.use(express.static(path.join(__dirname, '../../dist')));
+
+app.get('*', (req, res) => {
+  const indexPath = path.join(__dirname, '../../dist/index.html');
+  const fs = require('fs');
+  if (fs.existsSync(indexPath)) {
+    return res.sendFile(indexPath);
+  }
+  res.status(404).send('Not Found');
 });
 
 const startServer = async () => {
