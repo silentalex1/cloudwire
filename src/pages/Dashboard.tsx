@@ -2710,7 +2710,7 @@ function CommunityProjectDetail({
         <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <h3 className="text-sm font-medium text-zinc-400 shrink-0">Live Preview</h3>
-            <span className="text-xs text-zinc-500 font-mono hidden sm:inline truncate">{project.name}.cloudwire.cfd</span>
+            <span className="text-xs text-zinc-500 font-mono hidden sm:inline truncate">{project.name}.cloudwire.onrender.com</span>
           </div>
           <button
             onClick={openFullPage}
@@ -3087,12 +3087,12 @@ function Projects() {
                         {isStarted ? (
                           <div className="text-center">
                             <div className="text-xs text-zinc-400 mb-2">Live Preview</div>
-                            <div className="text-sm font-medium text-white">{project.name}.cloudwire.cfd</div>
+                            <div className="text-sm font-medium text-white">{project.name}.cloudwire.onrender.com</div>
                           </div>
                         ) : (
                           <div className="text-center">
                             <div className="text-xs text-zinc-400 mb-2">click 'start' button to view</div>
-                            <div className="text-sm font-medium text-zinc-500">{project.name}.cloudwire.cfd</div>
+                            <div className="text-sm font-medium text-zinc-500">{project.name}.cloudwire.onrender.com</div>
                           </div>
                         )}
                       </div>
@@ -3520,7 +3520,7 @@ function ProjectView() {
       setFileContents((prev) => ({ ...prev, [fileToLoad]: content }))
     } catch {
       const name = projectName || project?.name || 'project'
-      const fallback = fileToLoad === 'index.html' ? defaultProjectHtml(name, '', `${name}.cloudwire.cfd`) : ''
+      const fallback = fileToLoad === 'index.html' ? defaultProjectHtml(name, '', `${name}.cloudwire.onrender.com`) : ''
       setCode(fallback)
       setFileContents((prev) => ({ ...prev, [fileToLoad]: fallback }))
     }
@@ -3658,7 +3658,7 @@ function ProjectView() {
       const updated = { ...fileContents, [filename]: code }
       await projectsApi.saveFile(projectId!, filename, code).catch(() => {})
       setFileContents(updated)
-      const html = updated['index.html'] || defaultProjectHtml(project.name, project.description, `${project.name}.cloudwire.cfd`)
+      const html = updated['index.html'] || defaultProjectHtml(project.name, project.description, `${project.name}.cloudwire.onrender.com`)
       const css = updated['style.css'] || ''
       const jsOrTs = updated['script.js'] || updated['App.tsx'] || updated['index.tsx'] || updated['main.ts'] || updated['index.ts'] || updated['script.ts'] || updated['App.jsx'] || (filename.endsWith('.tsx') || filename.endsWith('.ts') || filename.endsWith('.jsx') || filename.endsWith('.js') ? code : '')
       setPreviewHtml(buildLivePreview(html, css, jsOrTs, updated))
