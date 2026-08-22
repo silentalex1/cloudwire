@@ -1476,51 +1476,69 @@ function SiteDns({ site }: { site: Site }) {
 
       {activeTab === "records" ? (
         <div className="space-y-6">
-          <div className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-4">
-            <p className="text-sm text-blue-300">
-              <span className="font-semibold">Note:</span> CloudWire IP address is <span className="font-mono">optional</span>. You can use CNAME records instead of A records for better flexibility.
-            </p>
+          {/* Info Note - CloudWire IP is Optional */}
+          <div className="rounded-3xl border-2 border-blue-400/40 bg-gradient-to-r from-blue-500/10 via-blue-400/5 to-purple-500/10 p-5 shadow-lg shadow-blue-500/10">
+            <div className="flex items-start gap-3">
+              <div className="rounded-full bg-blue-500/20 p-2">
+                <AlertCircle className="h-5 w-5 text-blue-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-blue-200">
+                  <span className="font-bold">Note:</span> CloudWire IP address is <span className="font-mono bg-blue-500/20 px-2 py-0.5 rounded">optional</span>
+                </p>
+                <p className="mt-1 text-xs text-blue-300/80">
+                  You can use CNAME records instead of A records for better flexibility. Setting up nameservers is also optional.
+                </p>
+              </div>
+            </div>
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-[#1f1f2a]">
+          {/* DNS Records Table with Curvy Design */}
+          <div className="overflow-hidden rounded-3xl border-2 border-[#1f1f2a] shadow-xl shadow-purple-500/5">
             <table className="w-full text-left text-sm">
-              <thead className="bg-[#0c0c0f] text-xs text-[#9494a8]">
+              <thead className="bg-gradient-to-r from-[#0c0c0f] to-[#1a1a2e] text-xs text-[#9494a8]">
                 <tr>
-                  <th className="px-4 py-3 font-medium">Type</th>
-                  <th className="px-4 py-3 font-medium">Name</th>
-                  <th className="px-4 py-3 font-medium">Content</th>
-                  <th className="px-4 py-3 font-medium">Proxy</th>
-                  <th className="px-4 py-3 font-medium">TTL</th>
+                  <th className="px-6 py-4 font-medium">Type</th>
+                  <th className="px-6 py-4 font-medium">Name</th>
+                  <th className="px-6 py-4 font-medium">Content</th>
+                  <th className="px-6 py-4 font-medium">Proxy</th>
+                  <th className="px-6 py-4 font-medium">TTL</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#1f1f2a]">
-                {records.map((r) => (
-                  <tr key={r.id} className="bg-[#050505] hover:bg-[#0c0c0f]">
-                    <td className="px-4 py-3 font-mono text-[#a78bfa]">{r.type}</td>
-                    <td className="px-4 py-3 font-mono">{r.name}</td>
-                    <td className="px-4 py-3 font-mono text-[#9494a8]">{r.content}</td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ${r.proxied ? "bg-[#8b5cf6]/20 text-[#a78bfa]" : "bg-[#1f1f2a] text-[#9494a8]"}`}>
+                {records.map((r, idx) => (
+                  <tr 
+                    key={r.id} 
+                    className="bg-[#050505] hover:bg-gradient-to-r hover:from-[#0c0c0f] hover:to-[#1a1a2e]/50 transition-all duration-200"
+                    style={{
+                      animation: `fadeIn 0.3s ease-in-out ${idx * 0.05}s both`
+                    }}
+                  >
+                    <td className="px-6 py-4 font-mono font-semibold text-[#a78bfa]">{r.type}</td>
+                    <td className="px-6 py-4 font-mono">{r.name}</td>
+                    <td className="px-6 py-4 font-mono text-[#9494a8]">{r.content}</td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${r.proxied ? "bg-[#8b5cf6]/20 text-[#a78bfa] border border-[#8b5cf6]/30" : "bg-[#1f1f2a] text-[#9494a8] border border-[#2f2f3a]"}`}>
                         {r.proxied ? "Proxied" : "DNS only"}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-[#9494a8]">{r.ttl === 1 ? "Auto" : r.ttl}</td>
+                    <td className="px-6 py-4 text-[#9494a8]">{r.ttl === 1 ? "Auto" : r.ttl}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          <div className="rounded-xl border border-[#1f1f2a] bg-[#0c0c0f] p-6">
+          <div className="rounded-3xl border-2 border-[#1f1f2a] bg-gradient-to-br from-[#0c0c0f] to-[#1a1a2e] p-6 shadow-xl shadow-purple-500/5">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-semibold">DNS Verification</h3>
+                <h3 className="font-semibold text-lg">DNS Verification</h3>
                 <p className="mt-1 text-sm text-[#9494a8]">Check if your domain DNS records are properly configured in Namecheap.</p>
               </div>
               <button 
                 onClick={verifyDns}
                 disabled={verifying}
-                className="rounded-lg bg-[#8b5cf6] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#7c3aed] disabled:opacity-50"
+                className="rounded-2xl bg-gradient-to-r from-[#8b5cf6] to-[#7c3aed] px-6 py-3 text-sm font-medium text-white hover:from-[#7c3aed] hover:to-[#6d28d9] disabled:opacity-50 shadow-lg shadow-purple-500/25 transition-all duration-200 hover:shadow-xl hover:shadow-purple-500/40"
               >
                 {verifying ? 'Verifying...' : 'Verify DNS Setup'}
               </button>
@@ -1528,65 +1546,83 @@ function SiteDns({ site }: { site: Site }) {
 
             {verification && (
               <div className="mt-6 space-y-4">
-                <div className={`rounded-xl border p-4 ${verification.pointsToCloudwire ? 'border-green-500/30 bg-green-500/5' : 'border-amber-500/30 bg-amber-500/5'}`}>
-                  <div className="flex items-center gap-2">
+                <div className={`rounded-2xl border-2 p-5 ${verification.pointsToCloudwire ? 'border-green-400/40 bg-gradient-to-r from-green-500/10 to-emerald-500/5' : 'border-amber-400/40 bg-gradient-to-r from-amber-500/10 to-orange-500/5'}`}>
+                  <div className="flex items-center gap-3">
                     {verification.pointsToCloudwire ? (
-                      <CheckCircle2 className="h-5 w-5 text-green-400" />
+                      <div className="rounded-full bg-green-500/20 p-2">
+                        <CheckCircle2 className="h-6 w-6 text-green-400" />
+                      </div>
                     ) : (
-                      <AlertCircle className="h-5 w-5 text-amber-400" />
+                      <div className="rounded-full bg-amber-500/20 p-2">
+                        <AlertCircle className="h-6 w-6 text-amber-400" />
+                      </div>
                     )}
-                    <h4 className="font-semibold">
-                      {verification.pointsToCloudwire ? 'DNS Configured Correctly ✓' : 'DNS Configuration Needed'}
-                    </h4>
+                    <div>
+                      <h4 className="font-semibold text-lg">
+                        {verification.pointsToCloudwire ? 'DNS Configured Correctly ✓' : 'DNS Configuration Needed'}
+                      </h4>
+                      <p className="mt-1 text-sm text-[#9494a8]">
+                        {verification.pointsToCloudwire 
+                          ? `Your domain ${verification.domain} is properly pointing to CloudWire.`
+                          : `Your domain ${verification.domain} is not yet pointing to CloudWire. Please update your DNS records in Namecheap.`
+                        }
+                      </p>
+                    </div>
                   </div>
-                  <p className="mt-2 text-sm text-[#9494a8]">
-                    {verification.pointsToCloudwire 
-                      ? `Your domain ${verification.domain} is properly pointing to CloudWire.`
-                      : `Your domain ${verification.domain} is not yet pointing to CloudWire. Please update your DNS records in Namecheap.`
-                    }
-                  </p>
                 </div>
 
                 {verification.aRecords.configured && (
-                  <div className="rounded-xl border border-[#1f1f2a] bg-[#121218] p-4">
-                    <h5 className="text-sm font-semibold text-[#a78bfa]">A Records Found</h5>
-                    <div className="mt-2 space-y-1">
+                  <div className="rounded-2xl border-2 border-[#1f1f2a] bg-[#121218] p-5">
+                    <h5 className="text-sm font-semibold text-[#a78bfa] flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-[#a78bfa]"></div>
+                      A Records Found
+                    </h5>
+                    <div className="mt-3 space-y-2">
                       {verification.aRecords.records.map((ip: string, i: number) => (
-                        <div key={i} className="font-mono text-sm text-[#9494a8]">{ip}</div>
+                        <div key={i} className="font-mono text-sm text-[#9494a8] bg-[#0c0c0f] px-3 py-2 rounded-lg">{ip}</div>
                       ))}
                     </div>
                   </div>
                 )}
 
                 {verification.cnameRecords.configured && (
-                  <div className="rounded-xl border border-[#1f1f2a] bg-[#121218] p-4">
-                    <h5 className="text-sm font-semibold text-[#a78bfa]">CNAME Records Found</h5>
-                    <div className="mt-2 space-y-1">
+                  <div className="rounded-2xl border-2 border-[#1f1f2a] bg-[#121218] p-5">
+                    <h5 className="text-sm font-semibold text-[#a78bfa] flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-[#a78bfa]"></div>
+                      CNAME Records Found
+                    </h5>
+                    <div className="mt-3 space-y-2">
                       {verification.cnameRecords.records.map((cname: string, i: number) => (
-                        <div key={i} className="font-mono text-sm text-[#9494a8]">{cname}</div>
+                        <div key={i} className="font-mono text-sm text-[#9494a8] bg-[#0c0c0f] px-3 py-2 rounded-lg">{cname}</div>
                       ))}
                     </div>
                   </div>
                 )}
 
                 {verification.nameservers.configured && (
-                  <div className="rounded-xl border border-[#1f1f2a] bg-[#121218] p-4">
-                    <h5 className="text-sm font-semibold text-[#a78bfa]">Nameservers Found</h5>
-                    <div className="mt-2 space-y-1">
+                  <div className="rounded-2xl border-2 border-[#1f1f2a] bg-[#121218] p-5">
+                    <h5 className="text-sm font-semibold text-[#a78bfa] flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-[#a78bfa]"></div>
+                      Nameservers Found
+                    </h5>
+                    <div className="mt-3 space-y-2">
                       {verification.nameservers.records.map((ns: string, i: number) => (
-                        <div key={i} className="font-mono text-sm text-[#9494a8]">{ns}</div>
+                        <div key={i} className="font-mono text-sm text-[#9494a8] bg-[#0c0c0f] px-3 py-2 rounded-lg">{ns}</div>
                       ))}
                     </div>
                   </div>
                 )}
 
                 {verification.recommendations.length > 0 && (
-                  <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
-                    <h5 className="text-sm font-semibold text-amber-300">Recommendations</h5>
-                    <ul className="mt-2 space-y-2">
+                  <div className="rounded-2xl border-2 border-amber-400/40 bg-gradient-to-r from-amber-500/10 to-orange-500/5 p-5">
+                    <h5 className="text-sm font-semibold text-amber-300 flex items-center gap-2">
+                      <AlertCircle className="h-5 w-5" />
+                      Recommendations
+                    </h5>
+                    <ul className="mt-3 space-y-2">
                       {verification.recommendations.map((rec: string, i: number) => (
-                        <li key={i} className="flex gap-2 text-sm text-[#9494a8]">
-                          <span className="text-amber-400">•</span>
+                        <li key={i} className="flex gap-3 text-sm text-[#9494a8]">
+                          <span className="text-amber-400 font-bold">→</span>
                           {rec}
                         </li>
                       ))}
