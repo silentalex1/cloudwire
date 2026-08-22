@@ -12,16 +12,16 @@ class DNSAuthority {
   }
 
   initializeAuthority() {
-    this.nsRecords.set('cloudwire.cfd', {
-      nameservers: ['ns1.cloudwire.cfd', 'ns2.cloudwire.cfd', 'ns3.cloudwire.cfd', 'ns4.cloudwire.cfd'],
+    this.nsRecords.set('cloudwire.onrender.com', {
+      nameservers: ['ns1.cloudwire.onrender.com', 'ns2.cloudwire.onrender.com', 'ns3.cloudwire.onrender.com', 'ns4.cloudwire.onrender.com'],
       authoritative: true,
       registered: new Date().toISOString(),
       registry: 'CloudWire Registry'
     });
 
-    this.soaRecords.set('cloudwire.cfd', {
-      mname: 'ns1.cloudwire.cfd',
-      rname: 'admin.cloudwire.cfd',
+    this.soaRecords.set('cloudwire.onrender.com', {
+      mname: 'ns1.cloudwire.onrender.com',
+      rname: 'admin.cloudwire.onrender.com',
       serial: Date.now(),
       refresh: 3600,
       retry: 600,
@@ -30,19 +30,19 @@ class DNSAuthority {
       ttl: 86400
     });
 
-    this.glueRecords.set('ns1.cloudwire.cfd', {
+    this.glueRecords.set('ns1.cloudwire.onrender.com', {
       addresses: ['192.0.2.1', '2001:db8::1'],
       ttl: 3600,
       geographic: ['US', 'EU', 'AS']
     });
 
-    this.glueRecords.set('ns2.cloudwire.cfd', {
+    this.glueRecords.set('ns2.cloudwire.onrender.com', {
       addresses: ['192.0.2.2', '2001:db8::2'],
       ttl: 3600,
       geographic: ['US', 'EU', 'AS']
     });
 
-    this.glueRecords.set('ns3.cloudwire.cfd', {
+    this.glueRecords.set('ns3.cloudwire.onrender.com', {
       addresses: ['192.0.2.3', '2001:db8::3'],
       ttl: 3600,
       geographic: ['US', 'SA']

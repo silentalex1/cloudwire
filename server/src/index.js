@@ -884,7 +884,7 @@ const startServer = async () => {
           });
         }
       } catch {}
-      console.log('- DNS nameservers: ns1-ns4.cloudwire.cfd');
+      console.log('- DNS nameservers: ns1-ns4.cloudwire.onrender.com');
     } catch (dnsError) {
       console.log('- DNS server: Could not start UDP server (expected on hosted platforms)');
       console.log('- DNS functionality available via API endpoints');

@@ -22,13 +22,13 @@ class DNSServer {
   }
 
   initializeDefaultRecords() {
-    const ns = ['ns1.cloudwire.cfd', 'ns2.cloudwire.cfd', 'ns3.cloudwire.cfd', 'ns4.cloudwire.cfd'];
+    const ns = ['ns1.cloudwire.onrender.com', 'ns2.cloudwire.onrender.com', 'ns3.cloudwire.onrender.com', 'ns4.cloudwire.onrender.com'];
     ns.forEach((name) => this.addRecord(name, 'A', this.ip));
-    this.addRecord('cloudwire.cfd', 'A', this.ip);
-    this.addRecord('cloudwire.cfd', 'NS', 'ns1.cloudwire.cfd');
-    this.addRecord('cloudwire.cfd', 'NS', 'ns2.cloudwire.cfd');
-    this.addRecord('cloudwire.cfd', 'NS', 'ns3.cloudwire.cfd');
-    this.addRecord('cloudwire.cfd', 'NS', 'ns4.cloudwire.cfd');
+    this.addRecord('cloudwire.onrender.com', 'A', this.ip);
+    this.addRecord('cloudwire.onrender.com', 'NS', 'ns1.cloudwire.onrender.com');
+    this.addRecord('cloudwire.onrender.com', 'NS', 'ns2.cloudwire.onrender.com');
+    this.addRecord('cloudwire.onrender.com', 'NS', 'ns3.cloudwire.onrender.com');
+    this.addRecord('cloudwire.onrender.com', 'NS', 'ns4.cloudwire.onrender.com');
   }
 
   addRecord(domain, type, data) {

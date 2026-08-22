@@ -31,11 +31,11 @@ const defaultDnsRecords = (domain) => {
   return [
     { id: '1', type: 'A', name: '@', content: ip, ttl: 60, proxied: true },
     { id: '2', type: 'A', name: 'www', content: ip, ttl: 60, proxied: true },
-    { id: '3', type: 'NS', name: '@', content: 'ns1.cloudwire.cfd', ttl: 3600, proxied: false },
-    { id: '4', type: 'NS', name: '@', content: 'ns2.cloudwire.cfd', ttl: 3600, proxied: false },
-    { id: '5', type: 'NS', name: '@', content: 'ns3.cloudwire.cfd', ttl: 3600, proxied: false },
-    { id: '6', type: 'NS', name: '@', content: 'ns4.cloudwire.cfd', ttl: 3600, proxied: false },
-    { id: '7', type: 'TXT', name: '@', content: 'v=spf1 include:_spf.cloudwire.cfd ~all', ttl: 3600, proxied: false },
+    { id: '3', type: 'NS', name: '@', content: 'ns1.cloudwire.onrender.com', ttl: 3600, proxied: false },
+    { id: '4', type: 'NS', name: '@', content: 'ns2.cloudwire.onrender.com', ttl: 3600, proxied: false },
+    { id: '5', type: 'NS', name: '@', content: 'ns3.cloudwire.onrender.com', ttl: 3600, proxied: false },
+    { id: '6', type: 'NS', name: '@', content: 'ns4.cloudwire.onrender.com', ttl: 3600, proxied: false },
+    { id: '7', type: 'TXT', name: '@', content: 'v=spf1 include:_spf.cloudwire.onrender.com ~all', ttl: 3600, proxied: false },
     { id: '8', type: 'CNAME', name: 'www', content: domain, ttl: 60, proxied: true },
   ];
 };
