@@ -1348,19 +1348,42 @@ function SiteOverview({ site: initialSite }: { site: Site }) {
 
       {s.status === "pending" && (
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-6">
-          <h3 className="font-semibold text-amber-300">Connect your nameservers</h3>
-          <p className="mt-1 text-sm text-[#9494a8]">Update your domain registrar to use these nameservers. Protection activates once we detect the change.</p>
-          <p className="mt-1.5 text-xs text-purple-300 font-medium italic">(you can connect two only not all four)</p>
-          <div className="mt-4 grid gap-2 sm:grid-cols-2">
-            {[s.ns1, s.ns2, s.ns3, s.ns4].filter(Boolean).map((ns) => (
-              <div key={ns} className="flex items-center justify-between rounded-lg border border-[#1f1f2a] bg-[#121218] px-4 py-3 font-mono text-sm">
-                {ns}
-                <button onClick={() => copy(ns)} className="text-[#9494a8] hover:text-white"><Copy className="h-4 w-4" /></button>
-              </div>
-            ))}
+          <h3 className="font-semibold text-amber-300">How to Connect Your Domain to CloudWire</h3>
+          <p className="mt-1 text-sm text-[#9494a8]">CloudWire is a reverse proxy and WAF, not a DNS provider. Choose one of these methods:</p>
+          
+          <div className="mt-4 space-y-4">
+            <div className="rounded-lg border border-green-500/30 bg-green-500/5 p-4">
+              <h4 className="font-semibold text-green-300 text-sm">✓ Method 1: A Records (Recommended for Namecheap)</h4>
+              <ol className="mt-2 space-y-2 text-sm text-[#9494a8] list-decimal list-inside">
+                <li>Keep <span className="font-mono bg-[#1f1f2a] px-2 py-0.5 rounded">Namecheap BasicDNS</span> or any DNS provider</li>
+                <li>Add A record: <span className="font-mono bg-[#1f1f2a] px-2 py-0.5 rounded">@ → 10.31.10.70</span></li>
+                <li>Add A record: <span className="font-mono bg-[#1f1f2a] px-2 py-0.5 rounded">www → 10.31.10.70</span></li>
+                <li>Click "Check nameservers" below when done</li>
+              </ol>
+            </div>
+
+            <div className="rounded-lg border border-blue-500/30 bg-blue-500/5 p-4">
+              <h4 className="font-semibold text-blue-300 text-sm">✓ Method 2: CNAME Records (For Subdomains)</h4>
+              <ol className="mt-2 space-y-2 text-sm text-[#9494a8] list-decimal list-inside">
+                <li>Keep your current DNS provider (Namecheap, Cloudflare, etc.)</li>
+                <li>Add CNAME: <span className="font-mono bg-[#1f1f2a] px-2 py-0.5 rounded">www → cloudwire.onrender.com</span></li>
+                <li>For root domain (@), use A record method above</li>
+              </ol>
+            </div>
+
+            <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-4">
+              <h4 className="font-semibold text-red-300 text-sm">✗ Do NOT Use Custom Nameservers</h4>
+              <p className="mt-2 text-sm text-[#9494a8]">
+                <span className="font-mono bg-[#1f1f2a] px-2 py-0.5 rounded">ns1.cloudwire.onrender.com</span> and 
+                <span className="font-mono bg-[#1f1f2a] px-2 py-0.5 rounded ml-1">ns2.cloudwire.onrender.com</span> are 
+                <span className="font-bold text-red-400"> NOT real DNS servers</span>. CloudWire is a reverse proxy, not a DNS provider. 
+                Keep using Namecheap BasicDNS or another DNS provider.
+              </p>
+            </div>
           </div>
+
           <button onClick={verify} disabled={loading} className="mt-4 rounded-lg bg-[#8b5cf6] px-4 py-2 text-sm font-medium text-white hover:bg-[#7c3aed] disabled:opacity-50">
-            {loading ? "Checking..." : "Check nameservers"}
+            {loading ? "Checking..." : "Check DNS Configuration"}
           </button>
         </div>
       )}

@@ -8,7 +8,7 @@ import { useState, useEffect, useCallback } from "react"
 const features = [
   { icon: Shield, title: "Web Application Firewall", desc: "Managed and custom rules stop SQLi, XSS, RCE, and zero-days at the edge before they reach origin." },
   { icon: Zap, title: "Global DDoS & Bot Fight", desc: "Layer 3/4/7 flood control, bot fingerprinting, JS challenges, Turnstile, and under-attack mode on every request." },
-  { icon: Globe, title: "Global DNS & Proxy", desc: "Point nameservers to ns1–ns4.cloudwire.cfd. We anycast, cache, and protect traffic worldwide on cloudwire.cfd." },
+  { icon: Globe, title: "Works with Any DNS Provider", desc: "Use Namecheap, Cloudflare, or any DNS provider. Add A or CNAME records pointing to CloudWire. No DNS migration required." },
   { icon: Lock, title: "SSL / TLS Everywhere", desc: "Automatic certificates, HSTS, TLS 1.3, and flexible, full, or strict origin modes." },
   { icon: Activity, title: "Real-time Analytics", desc: "Live request logs, threat scores, bandwidth, and cache hit ratios from the edge." },
   { icon: Server, title: "Origin Shield", desc: "SSRF-safe proxying, adaptive rate limits, hotlink protection, and always-HTTPS redirects." },
@@ -122,7 +122,7 @@ export default function Home() {
             </span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-[#b4b4c8]">
-            Cloud Wire is your edge network. Connect your DNS, enable the WAF, and we block threats, absorb attacks and accelerate traffic worldwide.
+            Cloud Wire is your edge network. Add simple DNS records in Namecheap, Cloudflare, or any registrar. We block threats, absorb attacks and accelerate traffic worldwide.
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             {isLoggedIn ? (
@@ -148,7 +148,7 @@ export default function Home() {
       <section id="features" className="border-t border-[#1f1f2a] bg-[#0c0c0f] py-24">
         <div className="mx-auto max-w-6xl px-6">
           <h2 className="text-center text-3xl font-bold tracking-tight sm:text-4xl">Everything you need at the edge</h2>
-          <p className="mx-auto mt-4 max-w-xl text-center text-[#9494a8]">No simulations. Real WAF engine, real DNS verification, real request logging once your nameservers point here.</p>
+          <p className="mx-auto mt-4 max-w-xl text-center text-[#9494a8]">No simulations. Real WAF engine, real DNS verification, real request logging. Works with Namecheap, Cloudflare, and all DNS providers.</p>
           <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((f) => (
               <div key={f.title} className="group rounded-2xl border border-[#1f1f2a] bg-[#121218] p-6 transition hover:border-[#8b5cf6]/40 hover:bg-white/[0.05]">
@@ -250,8 +250,8 @@ export default function Home() {
           <h2 className="text-center text-3xl font-bold tracking-tight sm:text-4xl">Go live in three steps</h2>
           <div className="mt-16 grid gap-8 md:grid-cols-3">
             {[
-              { step: "01", title: "Add your domain", desc: "Create a zone in the dashboard. We generate dedicated nameservers for you." },
-              { step: "02", title: "Update nameservers", desc: "Point your registrar to ns1.cloudwire.cfd and ns2.cloudwire.cfd. We verify the change automatically." },
+              { step: "01", title: "Add your domain", desc: "Create a site in the dashboard. We'll show you the DNS records to add." },
+              { step: "02", title: "Update DNS records", desc: "Add A or CNAME records in Namecheap, Cloudflare, or your DNS provider. Keep using their DNS management." },
               { step: "03", title: "Traffic is protected", desc: "Every request hits our edge first. WAF, cache, SSL and analytics activate instantly." },
             ].map((s) => (
               <div key={s.step} className="relative rounded-2xl border border-[#1f1f2a] bg-[#0c0c0f] p-8">
