@@ -57,9 +57,9 @@ export function defaultProjectHtml(name: string, description?: string, subdomain
     <h1 class="text-3xl font-bold text-white mb-2" style="font-size: 24px; color: #fff; margin-bottom: 8px;">${name}</h1>
     <p class="text-zinc-400 text-sm mb-6" style="color: #a1a1aa; font-size: 14px; margin-bottom: 20px;">${description || 'Live fullstack edge project hosted on CloudWire.'}</p>
     <div class="bg-zinc-950/60 rounded-xl p-3 text-xs font-mono text-purple-300 border border-zinc-800 mb-6" style="background: #09090b; padding: 10px; border-radius: 8px; font-family: monospace; font-size: 12px; color: #c4b5fd; margin-bottom: 20px;">
-      ${subdomain || `${name}.cloudwire.cfd`}
+      ${subdomain || `${name}.cloudwire.onrender.com`}
     </div>
-    <a href="https://cloudwire.cfd" target="_blank" class="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-sm font-semibold px-6 py-2.5 rounded-xl shadow-lg transition" style="background: linear-gradient(135deg, #7c3aed, #4f46e5); color: #fff; text-decoration: none; padding: 10px 24px; border-radius: 8px; font-size: 13px; font-weight: 600;">
+    <a href="https://cloudwire.onrender.com" target="_blank" class="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-sm font-semibold px-6 py-2.5 rounded-xl shadow-lg transition" style="background: linear-gradient(135deg, #7c3aed, #4f46e5); color: #fff; text-decoration: none; padding: 10px 24px; border-radius: 8px; font-size: 13px; font-weight: 600;">
       Hosted on CloudWire &rarr;
     </a>
   </div>
@@ -182,7 +182,7 @@ export function defaultSiteHtml(domain: string): string {
     <h1>${domain}</h1>
     <p class="subtitle">this website is using cloud wire.</p>
     <div class="actions">
-      <a href="https://cloudwire.cfd" target="_blank" rel="noopener noreferrer" class="cw-btn">
+      <a href="https://cloudwire.onrender.com" target="_blank" rel="noopener noreferrer" class="cw-btn">
         use cloudwire @ <span>here</span>
       </a>
     </div>
@@ -264,9 +264,6 @@ export function getProjectSubdomainUrl(name: string, username?: string): string 
   const isProd = window.location.hostname !== 'localhost'
   
   if (isProd) {
-    if (window.location.hostname === 'cloudwire.cfd' || window.location.hostname.endsWith('.cloudwire.cfd')) {
-      return `https://${name}.cloudwire.cfd${path}`
-    }
     return `${window.location.origin}/project/${name}${path}`
   }
   
@@ -278,9 +275,6 @@ export function getProjectLiveUrl(name: string): string {
   const isProd = window.location.hostname !== 'localhost'
   
   if (isProd) {
-    if (window.location.hostname === 'cloudwire.cfd' || window.location.hostname.endsWith('.cloudwire.cfd')) {
-      return `https://${name}.cloudwire.cfd`
-    }
     return `${window.location.origin}/project/${name}`
   }
   

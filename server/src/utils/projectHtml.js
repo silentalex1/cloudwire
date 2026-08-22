@@ -131,7 +131,7 @@ function defaultProjectHtml(name, description, subdomain) {
     <h1>${name}</h1>
     <p class="subtitle">${description || 'this website is using cloud wire.'}</p>
     <div class="actions">
-      <a href="https://cloudwire.cfd" target="_blank" rel="noopener noreferrer" class="cw-btn">
+      <a href="https://cloudwire.onrender.com" target="_blank" rel="noopener noreferrer" class="cw-btn">
         use cloudwire @ <span>here</span>
       </a>
     </div>
@@ -156,7 +156,7 @@ function defaultSiteHtml(domain) {
     <h1>${domain}</h1>
     <p class="subtitle">this website is using cloud wire.</p>
     <div class="actions">
-      <a href="https://cloudwire.cfd" target="_blank" rel="noopener noreferrer" class="cw-btn">
+      <a href="https://cloudwire.onrender.com" target="_blank" rel="noopener noreferrer" class="cw-btn">
         use cloudwire @ <span>here</span>
       </a>
     </div>

@@ -31,7 +31,7 @@ if (process.env.NODE_ENV === 'production' && (!process.env.JWT_SECRET || process
   console.warn('WARNING: JWT_SECRET is not set to a secure value. Set a strong, unique JWT_SECRET in your environment before deploying to production.');
 }
 
-const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'https://cloudwire.onrender.com,https://cloudwire.cfd,http://localhost:5173,http://localhost:5174,http://localhost:4173').split(',');
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'https://cloudwire.onrender.com,http://localhost:5173').split(',');
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -65,7 +65,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
       imgSrc: ["'self'", 'data:', 'https:'],
-      connectSrc: ["'self'", ...ALLOWED_ORIGINS, 'https://cloudwire.onrender.com', 'https://cloudwire.cfd', 'http://localhost:*', 'http://127.0.0.1:*'],
+      connectSrc: ["'self'", ...ALLOWED_ORIGINS, 'https://cloudwire.onrender.com', 'http://localhost:*'],
       frameSrc: ["'self'", ...ALLOWED_ORIGINS],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: null
@@ -87,8 +87,7 @@ const isAllowedOrigin = (origin) => {
     const { hostname } = new URL(origin);
     if (hostname === 'localhost' || hostname === '127.0.0.1') return true;
     if (hostname.endsWith('.localhost')) return true;
-    if (hostname === 'cloudwire.cfd' || hostname.endsWith('.cloudwire.cfd')) return true;
-    if (hostname.endsWith('.onrender.com')) return true;
+    if (hostname === 'cloudwire.onrender.com' || hostname.endsWith('.onrender.com')) return true;
   } catch {
     return false;
   }
@@ -207,7 +206,7 @@ app.use(async (req, res, next) => {
           return res.status(404).send('Project not found')
         }
         const analyticsCollector = require('./services/analyticsCollector')
-        analyticsCollector.recordRequest(projectName + '.cloudwire.cfd', { bytes: 0 })
+        analyticsCollector.recordRequest(projectName + '.cloudwire.onrender.com', { bytes: 0 })
         await renderProject(project, res)
         return
       }
@@ -220,8 +219,6 @@ app.use(async (req, res, next) => {
     let subdomain = null;
     if (hostHeader.endsWith('.localhost')) {
       subdomain = hostHeader.slice(0, -'.localhost'.length);
-    } else if (hostHeader.endsWith('.cloudwire.cfd')) {
-      subdomain = hostHeader.slice(0, -'.cloudwire.cfd'.length);
     } else if (hostHeader.endsWith('.onrender.com')) {
       const parts = hostHeader.split('.');
       if (parts.length >= 3 && parts[0] !== 'cloudwire') {
@@ -234,7 +231,7 @@ app.use(async (req, res, next) => {
       if (!project) {
         return res.status(404).send('Project not found');
       }
-      analyticsCollector.recordRequest(subdomain + '.cloudwire.cfd', { bytes: 0 });
+      analyticsCollector.recordRequest(subdomain + '.cloudwire.onrender.com', { bytes: 0 });
       await renderProject(project, res);
       return;
     }
