@@ -833,23 +833,77 @@ const distPath = path.join(__dirname, '../../dist');
 const indexHtmlPath = path.join(distPath, 'index.html');
 const fs = require('fs');
 
+console.log('=== Frontend Static Files Configuration ===');
 console.log('Dist path:', distPath);
 console.log('Dist exists:', fs.existsSync(distPath));
 console.log('Index.html path:', indexHtmlPath);
 console.log('Index.html exists:', fs.existsSync(indexHtmlPath));
 
 if (fs.existsSync(distPath)) {
-  console.log('Files in dist:', fs.readdirSync(distPath));
+  const files = fs.readdirSync(distPath);
+  console.log('Files in dist:', files);
+  console.log('Total files:', files.length);
+  
+  // Check for assets folder
+  const assetsPath = path.join(distPath, 'assets');
+  if (fs.existsSync(assetsPath)) {
+    const assetFiles = fs.readdirSync(assetsPath);
+    console.log('Assets folder found with', assetFiles.length, 'files');
+  } else {
+    console.log('⚠ No assets folder found');
+  }
+} else {
+  console.error('❌ CRITICAL: Dist folder does not exist!');
+  console.error('Frontend will not be served. Build may have failed.');
 }
 
-app.use(express.static(distPath));
+// Serve static files from dist
+app.use(express.static(distPath, {
+  maxAge: '1d',
+  etag: true,
+  setHeaders: (res, filepath) => {
+    if (filepath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
+}));
 
+// Catch-all route - serve index.html for client-side routing
 app.get('*', (req, res) => {
+  // Skip API routes
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+  
   if (fs.existsSync(indexHtmlPath)) {
     return res.sendFile(indexHtmlPath);
   }
-  console.log('Index.html not found, requested:', req.path);
-  res.status(404).send('Frontend not built. Run: npm install && npm run build');
+  
+  console.error('❌ Index.html not found at:', indexHtmlPath);
+  console.error('Requested path:', req.path);
+  
+  res.status(503).send(`
+    <html>
+      <head><title>CloudWire - Build Error</title></head>
+      <body style="font-family: system-ui; padding: 40px; background: #0a0a0a; color: #fff;">
+        <h1 style="color: #f87171;">Frontend Not Available</h1>
+        <p>The CloudWire frontend has not been built or is missing.</p>
+        <h3>Troubleshooting:</h3>
+        <ul>
+          <li>Check Render build logs for errors</li>
+          <li>Verify <code>npm run build</code> completed successfully</li>
+          <li>Ensure <code>dist/index.html</code> exists</li>
+        </ul>
+        <h3>Build Info:</h3>
+        <ul>
+          <li>Expected path: <code>${indexHtmlPath}</code></li>
+          <li>Dist folder exists: <strong>${fs.existsSync(distPath) ? 'YES' : 'NO'}</strong></li>
+          <li>Requested: <code>${req.path}</code></li>
+        </ul>
+        <p><a href="/api/health" style="color: #8b5cf6;">Check API Health →</a></p>
+      </body>
+    </html>
+  `);
 });
 
 const startServer = async () => {
