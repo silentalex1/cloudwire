@@ -1399,6 +1399,8 @@ function SiteDns({ site }: { site: Site }) {
   const [newNs, setNewNs] = useState("")
   const [activeTab, setActiveTab] = useState("records")
   const [loading, setLoading] = useState(false)
+  const [verifying, setVerifying] = useState(false)
+  const [verification, setVerification] = useState<any>(null)
 
   useEffect(() => {
     loadDnsRecords()
@@ -1410,6 +1412,24 @@ function SiteDns({ site }: { site: Site }) {
       setRecords(data)
     } catch {
       setRecords(defaultDns(site.domain))
+    }
+  }
+
+  const verifyDns = async () => {
+    setVerifying(true)
+    try {
+      const response = await fetch(`/api/dns/${site.id}/verify`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('cw_token') || localStorage.getItem('token')}`
+        }
+      })
+      const data = await response.json()
+      setVerification(data)
+    } catch (error) {
+      console.error('DNS verification failed:', error)
+      alert('Failed to verify DNS records')
+    } finally {
+      setVerifying(false)
     }
   }
 
@@ -1455,36 +1475,136 @@ function SiteDns({ site }: { site: Site }) {
       </div>
 
       {activeTab === "records" ? (
-        <div className="overflow-hidden rounded-xl border border-[#1f1f2a]">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-[#0c0c0f] text-xs text-[#9494a8]">
-              <tr>
-                <th className="px-4 py-3 font-medium">Type</th>
-                <th className="px-4 py-3 font-medium">Name</th>
-                <th className="px-4 py-3 font-medium">Content</th>
-                <th className="px-4 py-3 font-medium">Proxy</th>
-                <th className="px-4 py-3 font-medium">TTL</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#1f1f2a]">
-              {records.map((r) => (
-                <tr key={r.id} className="bg-[#050505] hover:bg-[#0c0c0f]">
-                  <td className="px-4 py-3 font-mono text-[#a78bfa]">{r.type}</td>
-                  <td className="px-4 py-3 font-mono">{r.name}</td>
-                  <td className="px-4 py-3 font-mono text-[#9494a8]">{r.content}</td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ${r.proxied ? "bg-[#8b5cf6]/20 text-[#a78bfa]" : "bg-[#1f1f2a] text-[#9494a8]"}`}>
-                      {r.proxied ? "Proxied" : "DNS only"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-[#9494a8]">{r.ttl === 1 ? "Auto" : r.ttl}</td>
+        <div className="space-y-6">
+          <div className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-4">
+            <p className="text-sm text-blue-300">
+              <span className="font-semibold">Note:</span> CloudWire IP address is <span className="font-mono">optional</span>. You can use CNAME records instead of A records for better flexibility.
+            </p>
+          </div>
+
+          <div className="overflow-hidden rounded-xl border border-[#1f1f2a]">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-[#0c0c0f] text-xs text-[#9494a8]">
+                <tr>
+                  <th className="px-4 py-3 font-medium">Type</th>
+                  <th className="px-4 py-3 font-medium">Name</th>
+                  <th className="px-4 py-3 font-medium">Content</th>
+                  <th className="px-4 py-3 font-medium">Proxy</th>
+                  <th className="px-4 py-3 font-medium">TTL</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-[#1f1f2a]">
+                {records.map((r) => (
+                  <tr key={r.id} className="bg-[#050505] hover:bg-[#0c0c0f]">
+                    <td className="px-4 py-3 font-mono text-[#a78bfa]">{r.type}</td>
+                    <td className="px-4 py-3 font-mono">{r.name}</td>
+                    <td className="px-4 py-3 font-mono text-[#9494a8]">{r.content}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ${r.proxied ? "bg-[#8b5cf6]/20 text-[#a78bfa]" : "bg-[#1f1f2a] text-[#9494a8]"}`}>
+                        {r.proxied ? "Proxied" : "DNS only"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-[#9494a8]">{r.ttl === 1 ? "Auto" : r.ttl}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="rounded-xl border border-[#1f1f2a] bg-[#0c0c0f] p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold">DNS Verification</h3>
+                <p className="mt-1 text-sm text-[#9494a8]">Check if your domain DNS records are properly configured in Namecheap.</p>
+              </div>
+              <button 
+                onClick={verifyDns}
+                disabled={verifying}
+                className="rounded-lg bg-[#8b5cf6] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#7c3aed] disabled:opacity-50"
+              >
+                {verifying ? 'Verifying...' : 'Verify DNS Setup'}
+              </button>
+            </div>
+
+            {verification && (
+              <div className="mt-6 space-y-4">
+                <div className={`rounded-xl border p-4 ${verification.pointsToCloudwire ? 'border-green-500/30 bg-green-500/5' : 'border-amber-500/30 bg-amber-500/5'}`}>
+                  <div className="flex items-center gap-2">
+                    {verification.pointsToCloudwire ? (
+                      <CheckCircle2 className="h-5 w-5 text-green-400" />
+                    ) : (
+                      <AlertCircle className="h-5 w-5 text-amber-400" />
+                    )}
+                    <h4 className="font-semibold">
+                      {verification.pointsToCloudwire ? 'DNS Configured Correctly ✓' : 'DNS Configuration Needed'}
+                    </h4>
+                  </div>
+                  <p className="mt-2 text-sm text-[#9494a8]">
+                    {verification.pointsToCloudwire 
+                      ? `Your domain ${verification.domain} is properly pointing to CloudWire.`
+                      : `Your domain ${verification.domain} is not yet pointing to CloudWire. Please update your DNS records in Namecheap.`
+                    }
+                  </p>
+                </div>
+
+                {verification.aRecords.configured && (
+                  <div className="rounded-xl border border-[#1f1f2a] bg-[#121218] p-4">
+                    <h5 className="text-sm font-semibold text-[#a78bfa]">A Records Found</h5>
+                    <div className="mt-2 space-y-1">
+                      {verification.aRecords.records.map((ip: string, i: number) => (
+                        <div key={i} className="font-mono text-sm text-[#9494a8]">{ip}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {verification.cnameRecords.configured && (
+                  <div className="rounded-xl border border-[#1f1f2a] bg-[#121218] p-4">
+                    <h5 className="text-sm font-semibold text-[#a78bfa]">CNAME Records Found</h5>
+                    <div className="mt-2 space-y-1">
+                      {verification.cnameRecords.records.map((cname: string, i: number) => (
+                        <div key={i} className="font-mono text-sm text-[#9494a8]">{cname}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {verification.nameservers.configured && (
+                  <div className="rounded-xl border border-[#1f1f2a] bg-[#121218] p-4">
+                    <h5 className="text-sm font-semibold text-[#a78bfa]">Nameservers Found</h5>
+                    <div className="mt-2 space-y-1">
+                      {verification.nameservers.records.map((ns: string, i: number) => (
+                        <div key={i} className="font-mono text-sm text-[#9494a8]">{ns}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {verification.recommendations.length > 0 && (
+                  <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+                    <h5 className="text-sm font-semibold text-amber-300">Recommendations</h5>
+                    <ul className="mt-2 space-y-2">
+                      {verification.recommendations.map((rec: string, i: number) => (
+                        <li key={i} className="flex gap-2 text-sm text-[#9494a8]">
+                          <span className="text-amber-400">•</span>
+                          {rec}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       ) : activeTab === "nameservers" ? (
         <div className="space-y-6">
+          <div className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-4">
+            <p className="text-sm text-blue-300">
+              <span className="font-semibold">Note:</span> Using CloudWire nameservers is <span className="font-mono">optional</span>. You can manage DNS at your registrar and only use A or CNAME records to point to CloudWire.
+            </p>
+          </div>
+
           <div className="rounded-xl border border-[#1f1f2a] bg-[#0c0c0f] p-6">
             <h3 className="font-semibold">Custom Nameservers</h3>
             <p className="mt-1 text-sm text-[#9494a8]">Add custom nameservers for your domain.</p>
