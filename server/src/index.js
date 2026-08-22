@@ -162,33 +162,58 @@ async function findProjectByName(projectName) {
 
 async function renderProject(project, res) {
   const { isUsingInMemory, inMemoryStorage } = require('./config/database');
-  const { enhanceProjectHtml, defaultProjectHtml } = require('./utils/projectHtml');
+  const { buildCompleteHtml, defaultProjectHtml, defaultStyleCss } = require('./utils/projectHtml');
   const fs = require('fs');
 
   res.removeHeader('X-Frame-Options');
 
   if (isUsingInMemory()) {
-    const fileKey = `${project.id}:index.html`;
-    const rawContent = inMemoryStorage.projectFiles[fileKey] || '';
-    const content = enhanceProjectHtml(rawContent || defaultProjectHtml(
-      project.name,
-      project.description,
-      project.subdomain || `${project.name}.cloudwire.onrender.com`
-    ));
-    res.type('html').send(content);
-  } else {
-    const projectDir = path.join(__dirname, '../projects', project.id);
-    const indexPath = path.join(projectDir, 'index.html');
-
-    if (fs.existsSync(indexPath)) {
-      const rawContent = fs.readFileSync(indexPath, 'utf8');
-      res.type('html').send(enhanceProjectHtml(rawContent));
-    } else {
-      res.type('html').send(defaultProjectHtml(
+    const htmlKey = `${project.id}:index.html`;
+    const cssKey = `${project.id}:style.css`;
+    const jsKey = `${project.id}:script.js`;
+    
+    const html = inMemoryStorage.projectFiles[htmlKey] || '';
+    const css = inMemoryStorage.projectFiles[cssKey] || '';
+    const js = inMemoryStorage.projectFiles[jsKey] || '';
+    
+    // If no HTML file exists, send default with inline CSS
+    if (!html) {
+      const defaultHtml = defaultProjectHtml(
         project.name,
         project.description,
         project.subdomain || `${project.name}.cloudwire.onrender.com`
-      ));
+      );
+      const defaultCss = defaultStyleCss();
+      const completeHtml = buildCompleteHtml(defaultHtml, defaultCss, '');
+      return res.type('html').send(completeHtml);
+    }
+    
+    // Build complete HTML with CSS and JS inline
+    const completeHtml = buildCompleteHtml(html, css, js);
+    res.type('html').send(completeHtml);
+  } else {
+    const projectDir = path.join(__dirname, '../projects', project.id);
+    const indexPath = path.join(projectDir, 'index.html');
+    const cssPath = path.join(projectDir, 'style.css');
+    const jsPath = path.join(projectDir, 'script.js');
+
+    if (fs.existsSync(indexPath)) {
+      const html = fs.readFileSync(indexPath, 'utf8');
+      const css = fs.existsSync(cssPath) ? fs.readFileSync(cssPath, 'utf8') : '';
+      const js = fs.existsSync(jsPath) ? fs.readFileSync(jsPath, 'utf8') : '';
+      
+      // Build complete HTML with CSS and JS inline
+      const completeHtml = buildCompleteHtml(html, css, js);
+      res.type('html').send(completeHtml);
+    } else {
+      const defaultHtml = defaultProjectHtml(
+        project.name,
+        project.description,
+        project.subdomain || `${project.name}.cloudwire.onrender.com`
+      );
+      const defaultCss = defaultStyleCss();
+      const completeHtml = buildCompleteHtml(defaultHtml, defaultCss, '');
+      res.type('html').send(completeHtml);
     }
   }
 }

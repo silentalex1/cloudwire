@@ -172,4 +172,48 @@ function seedProjectFiles(target, id, name, description, subdomain) {
   target[`${id}:script.js`] = defaultScriptJs();
 }
 
-module.exports = { enhanceProjectHtml, defaultProjectHtml, defaultSiteHtml, defaultStyleCss, defaultScriptJs, seedProjectFiles, VIEWPORT };
+function buildCompleteHtml(html, css, js) {
+  // If HTML already has a complete document structure, inject CSS and JS
+  if (html && (html.includes('<html') || html.includes('<HTML'))) {
+    let result = html;
+    
+    // Inject CSS
+    if (css && !html.includes(css)) {
+      if (result.includes('</head>')) {
+        result = result.replace('</head>', `<style>${css}</style></head>`);
+      } else if (result.includes('<head>')) {
+        result = result.replace('<head>', `<head><style>${css}</style>`);
+      } else {
+        result = result.replace(/<html([^>]*)>/i, `<html$1><head><style>${css}</style></head>`);
+      }
+    }
+    
+    // Inject JS
+    if (js && !html.includes(js)) {
+      if (result.includes('</body>')) {
+        result = result.replace('</body>', `<script>${js}</script></body>`);
+      } else {
+        result += `<script>${js}</script>`;
+      }
+    }
+    
+    return result;
+  }
+  
+  // Build a complete HTML document from scratch
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CloudWire Project</title>
+  <style>${css || ''}</style>
+</head>
+<body>
+  ${html || ''}
+  <script>${js || ''}</script>
+</body>
+</html>`;
+}
+
+module.exports = { enhanceProjectHtml, defaultProjectHtml, defaultSiteHtml, defaultStyleCss, defaultScriptJs, seedProjectFiles, buildCompleteHtml, VIEWPORT };
