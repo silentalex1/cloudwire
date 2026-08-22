@@ -786,15 +786,27 @@ app.get('/api/dns/resolve/:domain', (req, res) => {
   res.json(dns.resolve(req.params.domain));
 });
 
-app.use(express.static(path.join(__dirname, '../../dist')));
+const distPath = path.join(__dirname, '../../dist');
+const indexHtmlPath = path.join(distPath, 'index.html');
+const fs = require('fs');
+
+console.log('Dist path:', distPath);
+console.log('Dist exists:', fs.existsSync(distPath));
+console.log('Index.html path:', indexHtmlPath);
+console.log('Index.html exists:', fs.existsSync(indexHtmlPath));
+
+if (fs.existsSync(distPath)) {
+  console.log('Files in dist:', fs.readdirSync(distPath));
+}
+
+app.use(express.static(distPath));
 
 app.get('*', (req, res) => {
-  const indexPath = path.join(__dirname, '../../dist/index.html');
-  const fs = require('fs');
-  if (fs.existsSync(indexPath)) {
-    return res.sendFile(indexPath);
+  if (fs.existsSync(indexHtmlPath)) {
+    return res.sendFile(indexHtmlPath);
   }
-  res.status(404).send('Not Found');
+  console.log('Index.html not found, requested:', req.path);
+  res.status(404).send('Frontend not built. Run: npm install && npm run build');
 });
 
 const startServer = async () => {
