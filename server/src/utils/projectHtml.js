@@ -117,13 +117,16 @@ function defaultScriptJs() {
 }
 
 function defaultProjectHtml(name, description, subdomain) {
+  const css = defaultStyleCss();
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${name}</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+${css}
+  </style>
 </head>
 <body>
   <div class="cloudwire-card">
@@ -136,19 +139,26 @@ function defaultProjectHtml(name, description, subdomain) {
       </a>
     </div>
   </div>
-  <script src="script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      console.log('CloudWire website loaded successfully');
+    });
+  </script>
 </body>
 </html>`;
 }
 
 function defaultSiteHtml(domain) {
+  const css = defaultStyleCss();
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${domain}</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+${css}
+  </style>
 </head>
 <body>
   <div class="cloudwire-card">
@@ -161,7 +171,11 @@ function defaultSiteHtml(domain) {
       </a>
     </div>
   </div>
-  <script src="script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      console.log('CloudWire website loaded successfully');
+    });
+  </script>
 </body>
 </html>`;
 }
