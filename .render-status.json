@@ -1,0 +1,111 @@
+{
+  "version": "1.0.0",
+  "renderReady": true,
+  "lastUpdated": "2026-08-22",
+  "compatibility": {
+    "render": "100%",
+    "features": {
+      "database": "PostgreSQL with in-memory fallback",
+      "dns": "API-based (port 5353)",
+      "ssl": "Automatic via Render",
+      "cors": "Configured for .onrender.com",
+      "healthCheck": "/api/health",
+      "autoRetry": "5 attempts, 5s delay"
+    }
+  },
+  "services": {
+    "backend": {
+      "name": "cloudwire-api",
+      "type": "web",
+      "port": 10000,
+      "buildCommand": "cd server && npm install",
+      "startCommand": "cd server && npm start",
+      "healthCheck": "/api/health",
+      "environment": [
+        "PORT",
+        "NODE_ENV",
+        "JWT_SECRET",
+        "BOT_SECRET",
+        "ALLOWED_ORIGINS",
+        "DB_HOST",
+        "DB_PORT",
+        "DB_NAME",
+        "DB_USER",
+        "DB_PASSWORD",
+        "DNS_PORT"
+      ]
+    },
+    "frontend": {
+      "name": "cloudwire-frontend",
+      "type": "static",
+      "buildCommand": "npm install && npm run build",
+      "publishPath": "./dist",
+      "environment": [
+        "VITE_API_URL"
+      ]
+    },
+    "database": {
+      "name": "cloudwire-db",
+      "type": "postgresql",
+      "plan": "starter"
+    }
+  },
+  "features": {
+    "authentication": true,
+    "siteManagement": true,
+    "dnsRecords": true,
+    "analytics": true,
+    "waf": true,
+    "ddosProtection": true,
+    "sslManagement": true,
+    "projectHosting": true,
+    "autoScaling": true,
+    "globalNetwork": true
+  },
+  "deploymentSteps": [
+    "Push code to GitHub",
+    "Connect repository to Render",
+    "Deploy via Blueprint (render.yaml)",
+    "Update ALLOWED_ORIGINS",
+    "Verify health endpoint",
+    "Test application"
+  ],
+  "estimatedDeployTime": "15-20 minutes",
+  "documentation": {
+    "quickstart": "QUICKSTART.md",
+    "fullGuide": "RENDER_DEPLOYMENT.md",
+    "checklist": "DEPLOYMENT_CHECKLIST.md",
+    "readme": "README.md",
+    "changes": "CHANGES.md",
+    "ready": "RENDER_READY.md"
+  },
+  "healthChecks": {
+    "backend": "https://cloudwire-api.onrender.com/api/health",
+    "expectedResponse": {
+      "status": "ok",
+      "message": "CloudWire API is running",
+      "features": {
+        "database": true,
+        "redis": true,
+        "waf": true,
+        "ssl": true,
+        "dns": false,
+        "proxy": false,
+        "ddosProtection": true,
+        "globalNetwork": true,
+        "dnsAuthority": true,
+        "customCA": true,
+        "ddosMitigation": true,
+        "autoScaling": true,
+        "webServer": false
+      }
+    }
+  },
+  "notes": {
+    "dnsServer": "Runs on port 5353 (not 53) - expected on hosted platforms",
+    "database": "Automatic retry with fallback to in-memory storage",
+    "cors": "Configured to allow Render domains",
+    "freeTier": "Services sleep after 15 min inactivity (30-60s cold start)",
+    "production": "Upgrade to Starter plan for 24/7 uptime"
+  }
+}

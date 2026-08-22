@@ -1,0 +1,74 @@
+services:
+  # Backend API Server
+  - type: web
+    name: cloudwire-api
+    runtime: node
+    env: node
+    region: oregon
+    plan: starter
+    buildCommand: cd server && npm install
+    startCommand: cd server && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: BOT_SECRET
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: https://cloudwire-frontend.onrender.com
+      - key: DNS_PORT
+        value: 5353
+      - key: DB_HOST
+        fromDatabase:
+          name: cloudwire-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: cloudwire-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: cloudwire-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: cloudwire-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: cloudwire-db
+          property: password
+    healthCheckPath: /api/health
+
+  # Frontend Static Site
+  - type: web
+    name: cloudwire-frontend
+    runtime: static
+    env: static
+    region: oregon
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://cloudwire-api.onrender.com/api
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=0, must-revalidate
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+databases:
+  - name: cloudwire-db
+    region: oregon
+    plan: starter
+    databaseName: cloudwire
+    user: cloudwire
