@@ -197,6 +197,22 @@ async function renderProject(project, res) {
 app.use(async (req, res, next) => {
   try {
     if ((req.originalUrl || req.url || '').startsWith('/api/')) return next();
+    
+    const urlPath = req.path || req.url || ''
+    if (urlPath.startsWith('/project/')) {
+      const projectName = urlPath.split('/')[2]
+      if (projectName && PROJECT_NAME_PATTERN.test(projectName)) {
+        const project = await findProjectByName(projectName)
+        if (!project) {
+          return res.status(404).send('Project not found')
+        }
+        const analyticsCollector = require('./services/analyticsCollector')
+        analyticsCollector.recordRequest(projectName + '.cloudwire.cfd', { bytes: 0 })
+        await renderProject(project, res)
+        return
+      }
+    }
+
     const hostHeader = (req.headers.host || '').split(':')[0].toLowerCase();
     const analyticsCollector = require('./services/analyticsCollector');
     const fsSync = require('fs');

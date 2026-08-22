@@ -260,11 +260,11 @@ export function buildLivePreview(
 }
 
 export function getProjectSubdomainUrl(name: string, username?: string): string {
-  const path = username ? `/${encodeURIComponent(username)}` : '/'
+  const path = username ? `/${encodeURIComponent(username)}` : ''
   const isProd = window.location.hostname !== 'localhost'
   if (isProd) {
-    const baseDomain = window.location.hostname.includes('onrender.com') ? 'cloudwire.onrender.com' : 'cloudwire.cfd'
-    return `https://${name}.${baseDomain}${path}`
+    const baseDomain = window.location.origin
+    return `${baseDomain}/project/${name}${path}`
   }
   const port = (import.meta as any).env?.VITE_API_PORT || 3201
   return `http://${name}.localhost:${port}${path}`
@@ -273,8 +273,8 @@ export function getProjectSubdomainUrl(name: string, username?: string): string 
 export function getProjectLiveUrl(name: string): string {
   const isProd = window.location.hostname !== 'localhost'
   if (isProd) {
-    const baseDomain = window.location.hostname.includes('onrender.com') ? 'cloudwire.onrender.com' : 'cloudwire.cfd'
-    return `https://${baseDomain}/${name}`
+    const baseDomain = window.location.origin
+    return `${baseDomain}/project/${name}`
   }
   return `http://localhost:3201/${name}`
 }
