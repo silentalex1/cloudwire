@@ -23,6 +23,7 @@ const dnsRoutes = require('./routes/dns');
 const analyticsRoutes = require('./routes/analytics');
 const projectRoutes = require('./routes/projects');
 const adminRoutes = require('./routes/admin');
+const dohRoutes = require('./routes/doh');
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '10000', 10);
@@ -143,6 +144,8 @@ app.use('/api/dns', dnsRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/doh', dohRoutes);
+app.use('/doh', dohRoutes);
 
 const PROJECT_NAME_PATTERN = /^[a-z0-9-]{3,60}$/;
 

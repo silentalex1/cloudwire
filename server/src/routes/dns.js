@@ -52,16 +52,25 @@ router.get('/:siteId', async (req, res) => {
     if (siteCheck.rows.length === 0) {
       return res.status(404).json({ error: 'Site not found' });
     }
+
+    const site = siteCheck.rows[0];
+    const DNSServer = require('../services/dns');
+    const dnsServer = DNSServer.getInstance();
     
-    const result = await query(
-      'SELECT * FROM dns_records WHERE site_id = $1',
-      [siteId]
-    );
+    const domainRecords = dnsServer.getRecords(site.domain);
     
-    if (result.rows.length === 0) {
-      res.json(defaultDnsRecords(siteCheck.rows[0].domain));
+    if (domainRecords.length === 0) {
+      res.json(defaultDnsRecords(site.domain));
     } else {
-      res.json(result.rows);
+      const formatted = domainRecords.map((r, idx) => ({
+        id: `${idx + 1}`,
+        type: r.type,
+        name: site.domain,
+        content: r.data,
+        ttl: r.ttl,
+        proxied: ['A', 'CNAME'].includes(r.type)
+      }));
+      res.json(formatted);
     }
   } catch (error) {
     console.error('Get DNS records error:', error);
