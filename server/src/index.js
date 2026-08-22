@@ -173,7 +173,7 @@ async function renderProject(project, res) {
     const content = enhanceProjectHtml(rawContent || defaultProjectHtml(
       project.name,
       project.description,
-      project.subdomain || `${project.name}.cloudwire.cfd`
+      project.subdomain || `${project.name}.cloudwire.onrender.com`
     ));
     res.type('html').send(content);
   } else {
@@ -187,7 +187,7 @@ async function renderProject(project, res) {
       res.type('html').send(defaultProjectHtml(
         project.name,
         project.description,
-        project.subdomain || `${project.name}.cloudwire.cfd`
+        project.subdomain || `${project.name}.cloudwire.onrender.com`
       ));
     }
   }
