@@ -31,7 +31,7 @@ if (process.env.NODE_ENV === 'production' && (!process.env.JWT_SECRET || process
   console.warn('WARNING: JWT_SECRET is not set to a secure value. Set a strong, unique JWT_SECRET in your environment before deploying to production.');
 }
 
-const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:5174,http://localhost:4173,https://cloudwire-frontend.onrender.com').split(',');
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'https://cloudwire.onrender.com,https://cloudwire.cfd,http://localhost:5173,http://localhost:5174,http://localhost:4173').split(',');
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -65,7 +65,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
       imgSrc: ["'self'", 'data:', 'https:'],
-      connectSrc: ["'self'", ...ALLOWED_ORIGINS, 'http://localhost:*', 'http://127.0.0.1:*'],
+      connectSrc: ["'self'", ...ALLOWED_ORIGINS, 'https://cloudwire.onrender.com', 'https://cloudwire.cfd', 'http://localhost:*', 'http://127.0.0.1:*'],
       frameSrc: ["'self'", ...ALLOWED_ORIGINS],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: null
@@ -206,6 +206,11 @@ app.use(async (req, res, next) => {
       subdomain = hostHeader.slice(0, -'.localhost'.length);
     } else if (hostHeader.endsWith('.cloudwire.cfd')) {
       subdomain = hostHeader.slice(0, -'.cloudwire.cfd'.length);
+    } else if (hostHeader.endsWith('.onrender.com')) {
+      const parts = hostHeader.split('.');
+      if (parts.length >= 3 && parts[0] !== 'cloudwire') {
+        subdomain = parts[0];
+      }
     }
 
     if (subdomain && PROJECT_NAME_PATTERN.test(subdomain)) {
