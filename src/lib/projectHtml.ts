@@ -262,20 +262,28 @@ export function buildLivePreview(
 export function getProjectSubdomainUrl(name: string, username?: string): string {
   const path = username ? `/${encodeURIComponent(username)}` : ''
   const isProd = window.location.hostname !== 'localhost'
+  
   if (isProd) {
-    const baseDomain = window.location.origin
-    return `${baseDomain}/project/${name}${path}`
+    if (window.location.hostname === 'cloudwire.cfd' || window.location.hostname.endsWith('.cloudwire.cfd')) {
+      return `https://${name}.cloudwire.cfd${path}`
+    }
+    return `${window.location.origin}/project/${name}${path}`
   }
+  
   const port = (import.meta as any).env?.VITE_API_PORT || 3201
   return `http://${name}.localhost:${port}${path}`
 }
 
 export function getProjectLiveUrl(name: string): string {
   const isProd = window.location.hostname !== 'localhost'
+  
   if (isProd) {
-    const baseDomain = window.location.origin
-    return `${baseDomain}/project/${name}`
+    if (window.location.hostname === 'cloudwire.cfd' || window.location.hostname.endsWith('.cloudwire.cfd')) {
+      return `https://${name}.cloudwire.cfd`
+    }
+    return `${window.location.origin}/project/${name}`
   }
+  
   return `http://localhost:3201/${name}`
 }
 
