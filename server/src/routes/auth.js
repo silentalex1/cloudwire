@@ -102,7 +102,7 @@ router.get('/me', authenticateToken, async (req, res) => {
       [req.user.userId]
     );
     if (!result.rows || result.rows.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(401).json({ error: 'Session expired, please sign in again' });
     }
     const { publicUser } = require('../utils/plans');
     res.json(publicUser(result.rows[0]));
