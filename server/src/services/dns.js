@@ -12,15 +12,19 @@ function getServerIp() {
 }
 
 class DNSServer {
-  constructor(port = 53) {
+  constructor(port = 5353) {
     this.port = port;
+    this.tcpPort = port + 1;
     this.server = null;
+    this.tcpServer = null;
     this.records = new Map();
     this.zones = new Map();
     this.isRunning = false;
     this.ip = getServerIp();
     this.queryLog = [];
     this.maxLogEntries = 1000;
+    this.publicPort = process.env.DNS_PUBLIC_PORT || 5353;
+    this.publicHost = process.env.DNS_PUBLIC_HOST || 'cloudwire.onrender.com';
     this.initializeDefaultRecords();
   }
 
@@ -388,8 +392,8 @@ class DNSServer {
 
     this.server.on('error', (err) => {
       if (err.code === 'EADDRINUSE' || err.code === 'EACCES') {
-        const fallbackPort = this.port === 53 ? 5353 : this.port + 1;
-        console.log(`DNS port ${this.port} unavailable (${err.code}). Trying port ${fallbackPort}...`);
+        const fallbackPort = this.port + 100;
+        console.log(`DNS UDP port ${this.port} unavailable (${err.code}). Trying port ${fallbackPort}...`);
         this.port = fallbackPort;
         this.server.close();
         this.server = null;
@@ -403,16 +407,57 @@ class DNSServer {
     try {
       this.server.bind(this.port, '0.0.0.0', () => {
         this.isRunning = true;
-        console.log(`✓ DNS Server running on UDP port ${this.port}`);
-        console.log(`✓ Authoritative for: ${Array.from(this.zones.keys()).join(', ') || 'cloudwire.onrender.com'}`);
-        console.log(`✓ Nameservers: ns1-ns4.cloudwire.onrender.com`);
-        console.log(`✓ Server IP: ${this.ip}`);
+        console.log(`✓ DNS UDP Server running on port ${this.port}`);
+        console.log(`✓ Query via: dig @${this.publicHost} -p ${this.port} example.com`);
+        this.startTCPServer();
       });
     } catch (err) {
-      console.log('DNS Server could not start on port', this.port);
-      console.log('Note: Port 53 requires root privileges on Unix systems');
-      console.log('DNS queries will be handled via HTTP API instead');
+      console.log('DNS UDP Server could not start on port', this.port);
+      console.log('Trying alternative port...');
+      this.port = 5353 + Math.floor(Math.random() * 1000);
+      setTimeout(() => this.start(), 100);
     }
+  }
+
+  startTCPServer() {
+    const net = require('net');
+    
+    this.tcpServer = net.createServer((socket) => {
+      socket.on('data', (data) => {
+        if (data.length < 2) return;
+        
+        const msgLength = data.readUInt16BE(0);
+        const msg = data.slice(2, 2 + msgLength);
+        
+        const query = this.parseDNSQuery(msg);
+        if (!query) return;
+
+        const queryType = this.getTypeName(query.qtype);
+        let answers = this.getRecords(query.domain, queryType);
+
+        if (queryType === 'ANY' || query.qtype === 255) {
+          answers = this.getRecords(query.domain);
+        }
+
+        const response = this.buildDNSResponse(query, answers);
+        
+        const responseWithLength = Buffer.alloc(response.length + 2);
+        responseWithLength.writeUInt16BE(response.length, 0);
+        response.copy(responseWithLength, 2);
+        
+        socket.write(responseWithLength);
+        socket.end();
+      });
+    });
+
+    this.tcpServer.on('error', (err) => {
+      console.log('DNS TCP Server error:', err.code);
+    });
+
+    this.tcpServer.listen(this.tcpPort, '0.0.0.0', () => {
+      console.log(`✓ DNS TCP Server running on port ${this.tcpPort}`);
+      console.log(`✓ Query via: dig @${this.publicHost} -p ${this.tcpPort} +tcp example.com`);
+    });
   }
 
   stop() {
@@ -420,7 +465,13 @@ class DNSServer {
       this.isRunning = false;
       this.server.close();
       this.server = null;
-      console.log('DNS Server stopped');
+      console.log('DNS UDP Server stopped');
+    }
+    
+    if (this.tcpServer) {
+      this.tcpServer.close();
+      this.tcpServer = null;
+      console.log('DNS TCP Server stopped');
     }
   }
 
@@ -436,13 +487,19 @@ class DNSServer {
       totalRecords: Array.from(this.records.values()).reduce((n, l) => n + l.length, 0),
       totalZones: this.zones.size,
       isRunning: this.isRunning,
-      port: this.port,
+      udpPort: this.port,
+      tcpPort: this.tcpPort,
       ip: this.ip,
+      publicHost: this.publicHost,
+      publicPort: this.publicPort,
       nameservers: [
-        'ns1.cloudwire.onrender.com',
-        'ns2.cloudwire.onrender.com',
-        'ns3.cloudwire.onrender.com',
-        'ns4.cloudwire.onrender.com'
+        `${this.publicHost}:${this.port}`,
+        `${this.publicHost}:${this.tcpPort}`
+      ],
+      queryMethods: [
+        `dig @${this.publicHost} -p ${this.port} example.com`,
+        `dig @${this.publicHost} -p ${this.tcpPort} +tcp example.com`,
+        `https://${this.publicHost}/doh/dns-query?name=example.com&type=A`
       ],
       zones: Array.from(this.zones.keys()),
       recentQueries: this.queryLog.length

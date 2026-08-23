@@ -1349,35 +1349,47 @@ function SiteOverview({ site: initialSite }: { site: Site }) {
       {s.status === "pending" && (
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-6">
           <h3 className="font-semibold text-amber-300">How to Connect Your Domain to CloudWire</h3>
-          <p className="mt-1 text-sm text-[#9494a8]">CloudWire is a reverse proxy and WAF, not a DNS provider. Choose one of these methods:</p>
+          <p className="mt-1 text-sm text-[#9494a8]">CloudWire runs its own DNS infrastructure on custom ports. Choose your preferred method:</p>
           
           <div className="mt-4 space-y-4">
             <div className="rounded-lg border border-green-500/30 bg-green-500/5 p-4">
-              <h4 className="font-semibold text-green-300 text-sm">✓ Method 1: A Records (Recommended for Namecheap)</h4>
+              <h4 className="font-semibold text-green-300 text-sm">✓ Method 1: DNS-over-HTTPS (DoH) - Recommended</h4>
               <ol className="mt-2 space-y-2 text-sm text-[#9494a8] list-decimal list-inside">
-                <li>Keep <span className="font-mono bg-[#1f1f2a] px-2 py-0.5 rounded">Namecheap BasicDNS</span> or any DNS provider</li>
-                <li>Add A record: <span className="font-mono bg-[#1f1f2a] px-2 py-0.5 rounded">@ → 10.31.10.70</span></li>
-                <li>Add A record: <span className="font-mono bg-[#1f1f2a] px-2 py-0.5 rounded">www → 10.31.10.70</span></li>
-                <li>Click "Check nameservers" below when done</li>
+                <li>Works everywhere without special configuration</li>
+                <li>Query URL: <span className="font-mono bg-[#1f1f2a] px-2 py-0.5 rounded">https://cloudwire.onrender.com/doh/dns-query?name={s.domain}&type=A</span></li>
+                <li>Configure browsers/apps to use CloudWire DoH</li>
+                <li>No port restrictions or firewall issues</li>
               </ol>
             </div>
 
             <div className="rounded-lg border border-blue-500/30 bg-blue-500/5 p-4">
-              <h4 className="font-semibold text-blue-300 text-sm">✓ Method 2: CNAME Records (For Subdomains)</h4>
+              <h4 className="font-semibold text-blue-300 text-sm">✓ Method 2: Custom Port DNS (UDP/TCP)</h4>
               <ol className="mt-2 space-y-2 text-sm text-[#9494a8] list-decimal list-inside">
-                <li>Keep your current DNS provider (Namecheap, Cloudflare, etc.)</li>
-                <li>Add CNAME: <span className="font-mono bg-[#1f1f2a] px-2 py-0.5 rounded">www → cloudwire.onrender.com</span></li>
-                <li>For root domain (@), use A record method above</li>
+                <li>Use with <span className="font-mono bg-[#1f1f2a] px-2 py-0.5 rounded">dig</span> or custom DNS clients</li>
+                <li>UDP: <span className="font-mono bg-[#1f1f2a] px-2 py-0.5 rounded">dig @cloudwire.onrender.com -p 5353 {s.domain}</span></li>
+                <li>TCP: <span className="font-mono bg-[#1f1f2a] px-2 py-0.5 rounded">dig @cloudwire.onrender.com -p 5354 +tcp {s.domain}</span></li>
+                <li>Great for testing and development</li>
+              </ol>
+            </div>
+
+            <div className="rounded-lg border border-purple-500/30 bg-purple-500/5 p-4">
+              <h4 className="font-semibold text-purple-300 text-sm">✓ Method 3: Traditional DNS (A/CNAME Records)</h4>
+              <ol className="mt-2 space-y-2 text-sm text-[#9494a8] list-decimal list-inside">
+                <li>Keep <span className="font-mono bg-[#1f1f2a] px-2 py-0.5 rounded">Namecheap BasicDNS</span></li>
+                <li>Add A record: <span className="font-mono bg-[#1f1f2a] px-2 py-0.5 rounded">@ → 10.31.10.70</span></li>
+                <li>Add A record: <span className="font-mono bg-[#1f1f2a] px-2 py-0.5 rounded">www → 10.31.10.70</span></li>
+                <li>CloudWire acts as reverse proxy</li>
               </ol>
             </div>
 
             <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-4">
-              <h4 className="font-semibold text-red-300 text-sm">✗ Do NOT Use Custom Nameservers</h4>
+              <h4 className="font-semibold text-red-300 text-sm">ℹ About Custom Nameservers</h4>
               <p className="mt-2 text-sm text-[#9494a8]">
-                <span className="font-mono bg-[#1f1f2a] px-2 py-0.5 rounded">ns1.cloudwire.onrender.com</span> and 
-                <span className="font-mono bg-[#1f1f2a] px-2 py-0.5 rounded ml-1">ns2.cloudwire.onrender.com</span> are 
-                <span className="font-bold text-red-400"> NOT real DNS servers</span>. CloudWire is a reverse proxy, not a DNS provider. 
-                Keep using Namecheap BasicDNS or another DNS provider.
+                Traditional nameservers (port 53) require special hosting. CloudWire uses custom ports (5353/5354) and DoH instead.
+                This works everywhere and doesn't require root access or special privileges.
+              </p>
+              <p className="mt-2 text-sm text-purple-300 font-semibold">
+                Try our DNS client: <a href="/cloudwire-dns-client.html" target="_blank" className="underline">cloudwire.onrender.com/cloudwire-dns-client.html</a>
               </p>
             </div>
           </div>

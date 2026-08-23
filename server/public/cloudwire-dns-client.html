@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CloudWire DNS Client</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+      color: #f8f8fc;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle {
+      color: #9494a8;
+      margin-bottom: 40px;
+    }
+    .query-box {
+      background: #121218;
+      border: 2px solid #1f1f2a;
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    input, select {
+      background: #0c0c0f;
+      border: 2px solid #1f1f2a;
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: #f8f8fc;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus {
+      border-color: #8b5cf6;
+    }
+    input {
+      flex: 1;
+    }
+    select {
+      width: 120px;
+    }
+    button {
+      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
+    }
+    button:active {
+      transform: translateY(0);
+    }
+    .result {
+      background: #0c0c0f;
+      border: 2px solid #1f1f2a;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      display: none;
+    }
+    .result.show {
+      display: block;
+    }
+    .record {
+      background: #121218;
+      border-left: 4px solid #8b5cf6;
+      padding: 12px 16px;
+      margin: 8px 0;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+    }
+    .error {
+      color: #f87171;
+      background: rgba(248, 113, 113, 0.1);
+      border-left-color: #f87171;
+    }
+    .info-box {
+      background: #121218;
+      border: 2px solid #1f1f2a;
+      border-radius: 16px;
+      padding: 30px;
+    }
+    .info-box h2 {
+      color: #8b5cf6;
+      margin-bottom: 16px;
+      font-size: 1.5rem;
+    }
+    .info-box p, .info-box li {
+      color: #9494a8;
+      line-height: 1.8;
+      margin-bottom: 12px;
+    }
+    .info-box code {
+      background: #0c0c0f;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      color: #a78bfa;
+    }
+    .info-box ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    .info-box li::before {
+      content: "→";
+      color: #8b5cf6;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>CloudWire DNS Client</h1>
+    <p class="subtitle">Query domains using CloudWire's custom DNS infrastructure</p>
+
+    <div class="query-box">
+      <div class="input-group">
+        <input type="text" id="domain" placeholder="example.com" value="">
+        <select id="recordType">
+          <option value="A">A</option>
+          <option value="AAAA">AAAA</option>
+          <option value="CNAME">CNAME</option>
+          <option value="MX">MX</option>
+          <option value="NS">NS</option>
+          <option value="TXT">TXT</option>
+          <option value="SOA">SOA</option>
+          <option value="ANY">ANY</option>
+        </select>
+        <button onclick="queryDNS()">Query</button>
+      </div>
+
+      <div id="result" class="result"></div>
+    </div>
+
+    <div class="info-box">
+      <h2>How to Use CloudWire DNS</h2>
+      <p>CloudWire runs a custom DNS infrastructure that you can query in multiple ways:</p>
+      
+      <h3 style="color: #a78bfa; margin: 20px 0 12px 0;">DNS-over-HTTPS (DoH)</h3>
+      <ul>
+        <li>Query via browser: <code>https://cloudwire.onrender.com/doh/dns-query?name=example.com&type=A</code></li>
+        <li>Use in applications with DoH support</li>
+        <li>Works everywhere, no special configuration</li>
+      </ul>
+
+      <h3 style="color: #a78bfa; margin: 20px 0 12px 0;">Command Line (dig)</h3>
+      <ul>
+        <li>UDP: <code>dig @cloudwire.onrender.com -p 5353 example.com</code></li>
+        <li>TCP: <code>dig @cloudwire.onrender.com -p 5354 +tcp example.com</code></li>
+      </ul>
+
+      <h3 style="color: #a78bfa; margin: 20px 0 12px 0;">API Integration</h3>
+      <ul>
+        <li>GET: <code>/api/doh/resolve/example.com?type=A</code></li>
+        <li>Stats: <code>/api/doh/stats</code></li>
+        <li>Logs: <code>/api/doh/query-log</code></li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    async function queryDNS() {
+      const domain = document.getElementById('domain').value.trim();
+      const type = document.getElementById('recordType').value;
+      const resultDiv = document.getElementById('result');
+
+      if (!domain) {
+        resultDiv.innerHTML = '<div class="record error">Please enter a domain name</div>';
+        resultDiv.classList.add('show');
+        return;
+      }
+
+      resultDiv.innerHTML = '<div class="record">Querying...</div>';
+      resultDiv.classList.add('show');
+
+      try {
+        const response = await fetch(`/doh/dns-query?name=${encodeURIComponent(domain)}&type=${type}`);
+        const data = await response.json();
+
+        if (data.Answer && data.Answer.length > 0) {
+          let html = `<div class="record" style="border-left-color: #10b981;">✓ Query successful</div>`;
+          
+          data.Answer.forEach(record => {
+            html += `<div class="record">
+              <strong>${getTypeName(record.type)}</strong>: ${record.data}
+              <span style="color: #9494a8; margin-left: 16px;">TTL: ${record.TTL}s</span>
+            </div>`;
+          });
+          
+          resultDiv.innerHTML = html;
+        } else {
+          resultDiv.innerHTML = '<div class="record error">No records found (NXDOMAIN)</div>';
+        }
+      } catch (error) {
+        resultDiv.innerHTML = `<div class="record error">Query failed: ${error.message}</div>`;
+      }
+    }
+
+    function getTypeName(typeCode) {
+      const types = {
+        1: 'A', 2: 'NS', 5: 'CNAME', 6: 'SOA',
+        15: 'MX', 16: 'TXT', 28: 'AAAA'
+      };
+      return types[typeCode] || `TYPE${typeCode}`;
+    }
+
+    document.getElementById('domain').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') queryDNS();
+    });
+  </script>
+</body>
+</html>
