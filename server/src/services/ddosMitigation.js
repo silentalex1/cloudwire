@@ -30,7 +30,9 @@ class DDoSMitigation {
       action: 'drop',
       severity: 'critical',
       description: 'Detects and blocks SYN flood attacks',
-      mitigation: 'SYN cookies, rate limiting'
+      mitigation: 'SYN cookies, rate limiting',
+      autoBlock: true,
+      blockDuration: 3600
     });
 
     this.mitigationRules.set('UDP Flood', {
@@ -39,7 +41,9 @@ class DDoSMitigation {
       action: 'rate_limit',
       severity: 'high',
       description: 'Detects and mitigates UDP flood attacks',
-      mitigation: 'UDP rate limiting, filtering'
+      mitigation: 'UDP rate limiting, filtering',
+      autoBlock: true,
+      blockDuration: 1800
     });
 
     this.mitigationRules.set('HTTP Flood', {
@@ -48,7 +52,9 @@ class DDoSMitigation {
       action: 'challenge',
       severity: 'high',
       description: 'Detects HTTP flood and challenges requests',
-      mitigation: 'JavaScript challenges, CAPTCHA'
+      mitigation: 'JavaScript challenges, CAPTCHA',
+      autoBlock: false,
+      blockDuration: 900
     });
 
     this.mitigationRules.set('Amplification', {
@@ -56,8 +62,10 @@ class DDoSMitigation {
       threshold: 100,
       action: 'block',
       severity: 'critical',
-      description: 'Blocks DNS/NTP amplification attacks',
-      mitigation: 'Source IP validation, filtering'
+      description: 'Blocks DNS/NTP/Memcached amplification attacks',
+      mitigation: 'Source IP validation, filtering',
+      autoBlock: true,
+      blockDuration: 7200
     });
 
     this.mitigationRules.set('Slowloris', {
@@ -66,7 +74,9 @@ class DDoSMitigation {
       action: 'timeout',
       severity: 'medium',
       description: 'Detects and mitigates slowloris attacks',
-      mitigation: 'Connection timeouts, limits'
+      mitigation: 'Connection timeouts, limits',
+      autoBlock: true,
+      blockDuration: 600
     });
 
     this.mitigationRules.set('DNS Tunneling', {
@@ -75,7 +85,9 @@ class DDoSMitigation {
       action: 'block',
       severity: 'high',
       description: 'Detects DNS tunneling attempts',
-      mitigation: 'DNS query analysis'
+      mitigation: 'DNS query analysis',
+      autoBlock: true,
+      blockDuration: 3600
     });
 
     this.mitigationRules.set('NTP Reflection', {
@@ -84,7 +96,9 @@ class DDoSMitigation {
       action: 'block',
       severity: 'critical',
       description: 'Blocks NTP reflection attacks',
-      mitigation: 'NTP response filtering'
+      mitigation: 'NTP response filtering',
+      autoBlock: true,
+      blockDuration: 7200
     });
 
     this.mitigationRules.set('Memcached Reflection', {
@@ -93,11 +107,98 @@ class DDoSMitigation {
       action: 'block',
       severity: 'critical',
       description: 'Blocks Memcached reflection attacks',
-      mitigation: 'Memcached response filtering'
+      mitigation: 'Memcached response filtering',
+      autoBlock: true,
+      blockDuration: 7200
+    });
+
+    this.mitigationRules.set('ICMP Flood', {
+      pattern: /icmp/,
+      threshold: 2000,
+      action: 'rate_limit',
+      severity: 'medium',
+      description: 'Mitigates ICMP flood attacks',
+      mitigation: 'ICMP rate limiting',
+      autoBlock: true,
+      blockDuration: 600
+    });
+
+    this.mitigationRules.set('ACK Flood', {
+      pattern: /ACK/,
+      threshold: 1500,
+      action: 'drop',
+      severity: 'high',
+      description: 'Detects and blocks ACK flood attacks',
+      mitigation: 'Stateful inspection, rate limiting',
+      autoBlock: true,
+      blockDuration: 1800
+    });
+
+    this.mitigationRules.set('Fragmentation Attack', {
+      pattern: /fragment/,
+      threshold: 200,
+      action: 'reassemble',
+      severity: 'high',
+      description: 'Detects IP fragmentation attacks',
+      mitigation: 'Fragment reassembly, validation',
+      autoBlock: true,
+      blockDuration: 3600
+    });
+
+    this.mitigationRules.set('Zero-Day Protocol', {
+      pattern: /unknown-protocol/,
+      threshold: 50,
+      action: 'analyze',
+      severity: 'critical',
+      description: 'Detects unknown protocol attacks',
+      mitigation: 'Deep packet inspection, analysis',
+      autoBlock: false,
+      blockDuration: 300
     });
 
     this.initializeProtectionProfiles();
     this.initializeTrafficBaselines();
+    this.initializeAdaptiveLearning();
+  }
+
+  initializeAdaptiveLearning() {
+    setInterval(() => {
+      this.updateTrafficBaselines();
+      this.adjustThresholds();
+      this.cleanupExpiredBlocks();
+    }, 300000);
+  }
+
+  updateTrafficBaselines() {
+    const now = Date.now();
+    for (const [ip, data] of this.trafficPatterns.entries()) {
+      if (now - data.lastSeen > 3600000) {
+        this.trafficPatterns.delete(ip);
+      }
+    }
+  }
+
+  adjustThresholds() {
+    const globalTraffic = Array.from(this.trafficPatterns.values()).reduce((sum, data) => sum + data.requestCount, 0);
+    
+    if (globalTraffic > 1000000) {
+      Object.keys(this.attackThresholds).forEach(layer => {
+        this.attackThresholds[layer] *= 1.2;
+      });
+    } else if (globalTraffic < 10000) {
+      Object.keys(this.attackThresholds).forEach(layer => {
+        this.attackThresholds[layer] *= 0.8;
+      });
+    }
+  }
+
+  cleanupExpiredBlocks() {
+    const now = Date.now();
+    for (const [ip, data] of this.blacklistedIPs.entries()) {
+      if (data.expiresAt && now > data.expiresAt) {
+        this.blacklistedIPs.delete(ip);
+      }
+    }
   }
 
   initializeProtectionProfiles() {
